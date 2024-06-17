@@ -1,11 +1,10 @@
 #include "CSVReader.h"
-#include <iostream>
 #include <fstream>
-
+#include <sstream>
+#include <iostream>
 
 CSVReader::CSVReader()
 {
-
 }
 
 std::vector<OrderBookEntry> CSVReader::readCSV(std::string csvFilename)
@@ -25,7 +24,7 @@ std::vector<OrderBookEntry> CSVReader::readCSV(std::string csvFilename)
             {
                 std::cout << "CSVReader::readCSV bad data"  << std::endl;
             }
-        }// end of while
+        }
     }    
 
     std::cout << "CSVReader::readCSV read " << entries.size() << " entries"  << std::endl;
@@ -78,7 +77,6 @@ OrderBookEntry CSVReader::stringsToOBE(std::vector<std::string> tokens)
     return obe; 
 }
 
-
 OrderBookEntry CSVReader::stringsToOBE(std::string priceString, 
                                     std::string amountString, 
                                     std::string timestamp, 
@@ -102,4 +100,45 @@ OrderBookEntry CSVReader::stringsToOBE(std::string priceString,
                 
     return obe;
 }
-     
+
+std::vector<double> CSVReader::readTemperatures(const std::string& filename, const std::string& country) {
+    std::vector<double> temperatures;
+    std::ifstream file(filename);
+    std::string line;
+    
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string date, temp, cntry;
+        
+        std::getline(ss, date, ',');
+        std::getline(ss, cntry, ',');
+        std::getline(ss, temp, ',');
+
+        if (cntry == country) {
+            temperatures.push_back(std::stod(temp));
+        }
+    }
+
+    return temperatures;
+}
+
+std::vector<std::string> CSVReader::readDates(const std::string& filename, const std::string& country) {
+    std::vector<std::string> dates;
+    std::ifstream file(filename);
+    std::string line;
+    
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string date, temp, cntry;
+        
+        std::getline(ss, date, ',');
+        std::getline(ss, cntry, ',');
+        std::getline(ss, temp, ',');
+
+        if (cntry == country) {
+            dates.push_back(date);
+        }
+    }
+
+    return dates;
+}
