@@ -25,6 +25,5 @@ class CSVReader
     std::vector<std::string> readDates(const std::string& filename, const std::string& country);
     private:
      static OrderBookEntry stringsToOBE(std::vector<std::string> strings);
-   // std::vector<std::string> tokenise(const std::string& line, char delimiter);
 
 };

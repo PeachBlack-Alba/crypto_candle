@@ -22,6 +22,8 @@ void App::processCandlestickData() {
 
 void App::displayCandlestickData() {
     for (const auto& candle : candlesticks) {
-        std::cout << "Date: " << candle.date << " Open: " << candle.open << " High: " << candle.high << " Low: " << candle.low << " Close: " << candle.close << std::endl;
+        std::cout << "Date: " << candle.date << " Open: " << candle.open 
+        << " High: " << candle.high << " Low: " << candle.low << " Close: " 
+        << candle.close << std::endl;
     }
 }
