@@ -3,6 +3,7 @@
 #include <vector>
 #include "OrderBookEntry.h"
 #include "CSVReader.h"
+#include "App.h"
 
 MerkelMain::MerkelMain()
 {
@@ -24,7 +25,6 @@ void MerkelMain::init()
     }
 }
 
-
 void MerkelMain::printMenu()
 {
     // 1 print help
@@ -39,6 +39,8 @@ void MerkelMain::printMenu()
     std::cout << "5: Print wallet " << std::endl;
     // 6 continue   
     std::cout << "6: Continue " << std::endl;
+    // 7 compute and display candlestick data
+    std::cout << "7: Compute and display candlestick data" << std::endl;
 
     std::cout << "============== " << std::endl;
 
@@ -60,26 +62,7 @@ void MerkelMain::printMarketStats()
         std::cout << "Asks seen: " << entries.size() << std::endl;
         std::cout << "Max ask: " << OrderBook::getHighPrice(entries) << std::endl;
         std::cout << "Min ask: " << OrderBook::getLowPrice(entries) << std::endl;
-
-
-
     }
-    // std::cout << "OrderBook contains :  " << orders.size() << " entries" << std::endl;
-    // unsigned int bids = 0;
-    // unsigned int asks = 0;
-    // for (OrderBookEntry& e : orders)
-    // {
-    //     if (e.orderType == OrderBookType::ask)
-    //     {
-    //         asks ++;
-    //     }
-    //     if (e.orderType == OrderBookType::bid)
-    //     {
-    //         bids ++;
-    //     }  
-    // }    
-    // std::cout << "OrderBook asks:  " << asks << " bids:" << bids << std::endl;
-
 }
 
 void MerkelMain::enterAsk()
@@ -159,7 +142,7 @@ void MerkelMain::printWallet()
 {
     std::cout << wallet.toString() << std::endl;
 }
-        
+
 void MerkelMain::gotoNextTimeframe()
 {
     std::cout << "Going to next time frame. " << std::endl;
@@ -177,17 +160,21 @@ void MerkelMain::gotoNextTimeframe()
                 wallet.processSale(sale);
             }
         }
-        
     }
 
     currentTime = orderBook.getNextTime(currentTime);
 }
- 
+
+void MerkelMain::computeAndDisplayCandlestick() {
+    App app;
+    app.init();
+}
+
 int MerkelMain::getUserOption()
 {
     int userOption = 0;
     std::string line;
-    std::cout << "Type in 1-6" << std::endl;
+    std::cout << "Type in 1-7" << std::endl; 
     std::getline(std::cin, line);
     try{
         userOption = std::stoi(line);
@@ -203,7 +190,7 @@ void MerkelMain::processUserOption(int userOption)
 {
     if (userOption == 0) // bad input
     {
-        std::cout << "Invalid choice. Choose 1-6" << std::endl;
+        std::cout << "Invalid choice. Choose 1-7" << std::endl;  
     }
     if (userOption == 1) 
     {
@@ -228,5 +215,9 @@ void MerkelMain::processUserOption(int userOption)
     if (userOption == 6) 
     {
         gotoNextTimeframe();
+    }
+    if (userOption == 7) 
+    {
+        computeAndDisplayCandlestick();  
     }       
 }

@@ -26,7 +26,7 @@ class Wallet
 
         /** generate a string representation of the wallet */
         std::string toString();
-        friend std::ostream& operator<<(std::ostream& os, Wallet& wallet);
+        friend std::ostream&operator<<(std::ostream& os, Wallet& wallet);
 
         
     private:

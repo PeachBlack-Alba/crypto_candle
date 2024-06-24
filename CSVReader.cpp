@@ -94,47 +94,69 @@ OrderBookEntry CSVReader::stringsToOBE(std::string priceString,
 
     return obe;
 }
-
 std::map<std::string, std::map<std::string, std::vector<double>>> CSVReader::readTemperatureData(const std::string& filename) {
     std::map<std::string, std::map<std::string, std::vector<double>>> temperatureData;
     std::ifstream file(filename);
     std::string line;
 
+    // Read the header line to get the columns
+    std::getline(file, line);
+    std::vector<std::string> columns;
+    std::stringstream headerStream(line);
+    std::string column;
+    while (std::getline(headerStream, column, ',')) {
+        columns.push_back(column);
+    }
+
     while (std::getline(file, line)) {
         std::stringstream ss(line);
-        std::string date, temp, country;
-
+        std::string date;
         std::getline(ss, date, ',');
-        std::getline(ss, country, ',');
-        std::getline(ss, temp, ',');
 
-        if (temperatureData.find(country) == temperatureData.end()) {
-            temperatureData[country] = std::map<std::string, std::vector<double>>(); // Initialize if not exists
+        for (size_t i = 1; i < columns.size(); ++i) {
+            std::string temp;
+            std::getline(ss, temp, ',');
+            if (!temp.empty()) {
+                double tempValue = std::stod(temp);
+                std::string country = columns[i].substr(0, 2);
+                temperatureData[country][date].push_back(tempValue);
+            }
         }
-
-        temperatureData[country][date].push_back(std::stod(temp));
     }
 
     return temperatureData;
 }
 
-std::vector<std::string> CSVReader::readDates(const std::string& filename, const std::string& country) {
-    std::vector<std::string> dates;
-    std::ifstream file(filename);
-    std::string line;
+// std::vector<std::string> CSVReader::readDates(const std::string& filename, const std::string& country) {
+//     std::vector<std::string> dates;
+//     std::ifstream file(filename);
+//     std::string line;
 
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string date, temp, cntry;
+//     // Read the header line to get the columns
+//     std::getline(file, line);
+//     std::vector<std::string> columns;
+//     std::stringstream headerStream(line);
+//     std::string column;
+//     while (std::getline(headerStream, column, ',')) {
+//         columns.push_back(column);
+//     }
 
-        std::getline(ss, date, ',');
-        std::getline(ss, cntry, ',');
-        std::getline(ss, temp, ',');
+//     size_t countryColumn = std::find(columns.begin(), columns.end(), country + "_temperature") - columns.begin();
 
-        if (cntry == country) {
-            dates.push_back(date);
-        }
-    }
+//     while (std::getline(file, line)) {
+//         std::stringstream ss(line);
+//         std::string date;
+//         std::getline(ss, date, ',');
 
-    return dates;
-}
+//         for (size_t i = 1; i < columns.size(); ++i) {
+//             std::string temp;
+//             std::getline(ss, temp, ',');
+//             if (!temp.empty() && i == countryColumn) {
+//                 dates.push_back(date);
+//                 break;
+//             }
+//         }
+//     }
+
+//     return dates;
+// }
