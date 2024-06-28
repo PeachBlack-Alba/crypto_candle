@@ -17,7 +17,11 @@ void App::loadData() {
 
 void App::processCandlestickData() {
     CandlestickData candlestickData;
-    candlesticks = candlestickData.computeCandlestickData(temperatureData, country);
+    auto processedData = candlestickData.processData(temperatureData);
+
+    if (processedData.find(country) != processedData.end()) {
+        candlesticks = processedData[country];
+    }
 }
 
 void App::displayCandlestickData() {

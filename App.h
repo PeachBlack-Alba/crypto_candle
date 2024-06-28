@@ -15,7 +15,7 @@ private:
     void processCandlestickData();
     void displayCandlestickData();
 
-    std::map<std::string, std::map<std::string, std::vector<double>>> temperatureData;
+    std::map<std::string, std::map<std::string, std::vector<float>>> temperatureData;
     std::vector<Candlestick> candlesticks;
     std::string country;
 };

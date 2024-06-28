@@ -166,9 +166,34 @@ void MerkelMain::gotoNextTimeframe()
 }
 
 void MerkelMain::computeAndDisplayCandlestick() {
-    App app;
-    app.init();
+    CSVReader csvReader;
+    auto temperatureData = csvReader.readTemperatureData("path_to_your_csv_file.csv");
+    std::string country = "GB"; // Example country code
+
+    if (temperatureData.find(country) != temperatureData.end()) {
+        auto& countryData = temperatureData[country];
+        std::vector<Candlestick> candlesticks;
+        std::vector<float> previousYearTemperatures;
+
+        for (const auto& yearData : countryData) {
+            const std::string& year = yearData.first;
+            const auto& temperatures = yearData.second;
+            Candlestick candlestick = Candlestick::computeYearlyCandlestick(temperatures, previousYearTemperatures, year);
+            candlesticks.push_back(candlestick);
+            previousYearTemperatures = temperatures;
+        }
+
+        for (const auto& candlestick : candlesticks) {
+            std::cout << "Year: " << candlestick.date
+                      << " Open: " << candlestick.open
+                      << " High: " << candlestick.high
+                      << " Low: " << candlestick.low
+                      << " Close: " << candlestick.close << std::endl;
+        }
+    }
 }
+
+
 
 int MerkelMain::getUserOption()
 {

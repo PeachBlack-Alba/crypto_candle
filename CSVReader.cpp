@@ -94,8 +94,10 @@ OrderBookEntry CSVReader::stringsToOBE(std::string priceString,
 
     return obe;
 }
-std::map<std::string, std::map<std::string, std::vector<double>>> CSVReader::readTemperatureData(const std::string& filename) {
-    std::map<std::string, std::map<std::string, std::vector<double>>> temperatureData;
+
+
+std::map<std::string, std::map<std::string, std::vector<float>>> CSVReader::readTemperatureData(const std::string& filename) {
+    std::map<std::string, std::map<std::string, std::vector<float>>> temperatureData;
     std::ifstream file(filename);
     std::string line;
 
@@ -113,13 +115,22 @@ std::map<std::string, std::map<std::string, std::vector<double>>> CSVReader::rea
         std::string date;
         std::getline(ss, date, ',');
 
-        for (size_t i = 1; i < columns.size(); ++i) {
+        std::string year = date.substr(0, 4);
+
+        for (size_t i = 1; i < columns.size(); i += 3) {  // Skipping radiation columns
             std::string temp;
             std::getline(ss, temp, ',');
+            std::getline(ss, column, ',');  // Skip radiation direct
+            std::getline(ss, column, ',');  // Skip radiation diffuse
+
             if (!temp.empty()) {
-                double tempValue = std::stod(temp);
-                std::string country = columns[i].substr(0, 2);
-                temperatureData[country][date].push_back(tempValue);
+                try {
+                    float tempValue = std::stof(temp);
+                    std::string country = columns[i].substr(0, 2);
+                    temperatureData[country][year].push_back(tempValue);
+                } catch (const std::exception& e) {
+                    std::cout << "CSVReader::readTemperatureData: Invalid temperature value in file " << filename << " at line " << line << std::endl;
+                }
             }
         }
     }
