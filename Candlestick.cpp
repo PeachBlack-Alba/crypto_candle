@@ -26,3 +26,14 @@ Candlestick Candlestick::computeYearlyCandlestick(const std::vector<float>& temp
     float low = *std::min_element(temperatures.begin(), temperatures.end());
     return Candlestick(year, open, high, low, close);
 }
+
+std::string Candlestick::toTextRepresentation(int height) const {
+    std::string result = date + " ";
+    result += (close >= open ? "Green " : "Red ");
+    result += "|";
+    for (int i = 0; i < height; ++i) {
+        result += (i == height / 2 ? "-" : " ");
+    }
+    result += "|";
+    return result;
+}

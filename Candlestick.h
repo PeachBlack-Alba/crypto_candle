@@ -25,7 +25,9 @@ public:
     float high;
     float low;
     float close;
-    
+
     static Candlestick computeYearlyCandlestick(const std::vector<float>& temperatures, const std::vector<float>& previousYearTemperatures, const std::string& year);
+    std::string toTextRepresentation(int height) const;
+
 };
 
