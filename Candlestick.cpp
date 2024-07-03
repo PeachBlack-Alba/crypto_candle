@@ -133,3 +133,33 @@ double Candlestick::getLowestLow(const std::vector<Candlestick>& candlesticks) {
     }
     return lowestLow;
 }
+
+/// Task 3: Filter Data and Plotting using text
+
+void Candlestick::filterAndPlotData(const std::vector<Candlestick>& data, const std::string& startDate, const std::string& endDate, double minTemp, double maxTemp) {
+    std::vector<Candlestick> filteredData;
+    for (const auto& candle : data) {
+        if (candle.date >= startDate && candle.date <= endDate && candle.high <= maxTemp && candle.low >= minTemp) {
+            filteredData.push_back(candle);
+        }
+    }
+
+    if (!filteredData.empty()) {
+        computeTextPlot(filteredData);
+    } else {
+        std::cout << "No candlestick data available for the specified filters." << std::endl;
+    }
+}
+
+std::pair<double, double> Candlestick::linearRegression(const std::vector<double>& x, const std::vector<double>& y) {
+    double n = x.size();
+    double sum_x = std::accumulate(x.begin(), x.end(), 0.0);
+    double sum_y = std::accumulate(y.begin(), y.end(), 0.0);
+    double sum_xx = std::inner_product(x.begin(), x.end(), x.begin(), 0.0);
+    double sum_xy = std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
+
+    double slope = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x);
+    double intercept = (sum_y - slope * sum_x) / n;
+    std::cout << "Slope: " << slope << ", Intercept: " << intercept << std::endl;
+    return {slope, intercept};
+}

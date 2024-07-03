@@ -11,7 +11,11 @@ void App::init() {
     processCandlestickData();
     // Task 1:
     // displayCandlestickData();
+    // Task 2:
     displayTextCandlestickData();
+    // Task 3:
+        filterAndDisplayData("2000-06", "2000-09", 0.4, 8.7);
+
 
 }
 
@@ -50,7 +54,7 @@ void App::loadData() {
 //     }
 // }
 
-
+// Task 2: 
 void App::processCandlestickData() {
     if (temperatureData.find(country) != temperatureData.end()) {
         const auto& countryData = temperatureData[country];
@@ -82,6 +86,23 @@ void App::processCandlestickData() {
     }
 }
 
+// void App::displayTextCandlestickData() {
+//     std::vector<Candlestick> filteredCandlesticks;
+//     for (const auto& candle : candlesticks) {
+//         if (candle.date == "2000-06" || candle.date == "2000-07" || candle.date == "2000-08" || candle.date == "2000-09") {
+//             filteredCandlesticks.push_back(candle);
+//         }
+//     }
+
+//     if (!filteredCandlesticks.empty()) {
+//         Candlestick::computeTextPlot(filteredCandlesticks);
+//     } else {
+//         std::cout << "No candlestick data available for the specified months." << std::endl;
+//     }
+// }
+
+// Task 3: 
+
 void App::displayTextCandlestickData() {
     std::vector<Candlestick> filteredCandlesticks;
     for (const auto& candle : candlesticks) {
@@ -94,5 +115,32 @@ void App::displayTextCandlestickData() {
         Candlestick::computeTextPlot(filteredCandlesticks);
     } else {
         std::cout << "No candlestick data available for the specified months." << std::endl;
+    }
+}
+
+
+/// Task 3: Filter Data and Plotting using text
+
+
+void App::filterAndDisplayData(const std::string& startDate, const std::string& endDate, double minTemp, double maxTemp) {
+    std::cout << "Filtering data from " << startDate << " to " << endDate << " with temperature range [" << minTemp << ", " << maxTemp << "]" << std::endl;
+
+    std::vector<Candlestick> filteredData;
+    for (const auto& candle : candlesticks) {
+        if (candle.date >= startDate && candle.date <= endDate && candle.high <= maxTemp && candle.low >= minTemp) {
+            filteredData.push_back(candle);
+        }
+    }
+
+    // Debug: Print filtered data
+    if (filteredData.empty()) {
+        std::cout << "No candlestick data available after filtering." << std::endl;
+    } else {
+        std::cout << "Filtered candlestick data:" << std::endl;
+        for (const auto& candle : filteredData) {
+            std::cout << "Date: " << candle.date << ", Open: " << candle.open << ", High: " << candle.high << ", Low: " << candle.low << ", Close: " << candle.close << std::endl;
+        }
+
+        Candlestick::computeTextPlot(filteredData);
     }
 }
