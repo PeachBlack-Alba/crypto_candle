@@ -14,6 +14,7 @@
 #include <vector>
 #include <iostream>
 #include <iomanip>
+using namespace std; 
 
 // ANSI escape codes for text color
 #define RED_TEXT "\033[1;31m"
@@ -32,7 +33,8 @@ Candlestick Candlestick::computeYearlyCandlestick(const std::vector<float>& temp
     if (!previousYearTemperatures.empty()) {
         open = computeAverage(previousYearTemperatures);
     } else {
-        open = temperatures.front(); // For the first year, use the first temperature
+        // For the first year, use the first temperature
+        open = temperatures.front(); 
     }
     float close = computeAverage(temperatures);
     float high = *std::max_element(temperatures.begin(), temperatures.end());
@@ -40,50 +42,94 @@ Candlestick Candlestick::computeYearlyCandlestick(const std::vector<float>& temp
     return Candlestick(year, open, high, low, close);
 }
 
-////////
+Candlestick Candlestick::computeMonthlyCandlestick(const std::vector<float>& temperatures, const std::vector<float>& previousMonthTemperatures, const std::string& year, const std::string& month) {
+    float open;
+    if (!previousMonthTemperatures.empty()) {
+        open = computeAverage(previousMonthTemperatures);
+    } else {
+        // For the first month, use the first temperature
+        open = temperatures.front(); 
+    }
+    float close = computeAverage(temperatures);
+    float high = *std::max_element(temperatures.begin(), temperatures.end());
+    float low = *std::min_element(temperatures.begin(), temperatures.end());
+    return Candlestick(year + "-" + (month.size() == 1 ? "0" + month : month), open, high, low, close); // Format date as "YYYY-MM"
+}
+
 void Candlestick::computeTextPlot(const std::vector<Candlestick>& candlesticks) {
-    float minVal = std::numeric_limits<float>::max();
-    float maxVal = std::numeric_limits<float>::min();
+    double highestHigh = Candlestick::getHighestHigh(candlesticks);
+    double lowestLow = Candlestick::getLowestLow(candlesticks);
+    double scale = (highestHigh - lowestLow) * 1.3;
 
-    for (const auto& candle : candlesticks) {
-        minVal = std::min(minVal, candle.low);
-        maxVal = std::max(maxVal, candle.high);
-    }
+    int levels = 30;
+    double rangePerLevel = scale / levels;
+    double currentRange = highestHigh + rangePerLevel;
+    double previousRange = highestHigh + (2 * rangePerLevel);
 
-    int plotHeight = 20;
-    int plotWidth = candlesticks.size();
+    std::cout << "Levels: " << levels << std::endl;
+    std::cout << std::fixed << std::setprecision(1) << "Range per level: " << rangePerLevel << std::endl;
+    std::cout << "highestHigh: " << highestHigh << std::endl;
+    std::cout << "lowestLow: " << lowestLow << std::endl;
+    std::cout << "=====================================================" << std::endl;
 
-    std::vector<std::string> plotLines(plotHeight, std::string(plotWidth * 2, ' '));
-
-    for (int i = 0; i < plotHeight; ++i) {
-        float level = maxVal - (maxVal - minVal) * i / (plotHeight - 1);
-        for (size_t j = 0; j < candlesticks.size(); ++j) {
-            const auto& candle = candlesticks[j];
-            std::string color = (candle.close >= candle.open) ? GREEN_TEXT : RED_TEXT;
-
-            if (level <= candle.high && level >= candle.low) {
-                if (level == candle.open || level == candle.close) {
-                    plotLines[i].replace(j * 2, 1, color + '#' + RESET_TEXT);
-                } else if ((level < candle.open && level > candle.close) || (level > candle.open && level < candle.close)) {
-                    plotLines[i].replace(j * 2, 1, "|");
-                } else {
-                    plotLines[i].replace(j * 2, 1, "|");
-                }
-            }
+    for (int i = 0; i < levels; i++) {
+        std::cout << std::setw(5) << currentRange << "│";
+        for (const Candlestick& candlestick : candlesticks) {
+            Candlestick::drawCandlestick(candlestick.open, candlestick.close, candlestick.high, candlestick.low, currentRange, previousRange);
         }
+        currentRange -= rangePerLevel;
+        previousRange -= rangePerLevel;
+        std::cout << std::endl;
     }
 
-    // Print vertical axis labels
-    for (int i = 0; i < plotHeight; ++i) {
-        float level = maxVal - (maxVal - minVal) * i / (plotHeight - 1);
-        std::cout << std::setw(5) << std::fixed << std::setprecision(1) << level << " | " << plotLines[i] << std::endl;
-    }
-
-    // Print horizontal axis
-    std::cout << "      " << std::string(plotWidth * 2, '-') << std::endl;
-    std::cout << "      ";
-    for (const auto& candle : candlesticks) {
-        std::cout << candle.date.substr(2, 2) << " ";
+    std::cout << std::setw(7) << "Time" << "│";
+    for (const Candlestick& candle : candlesticks) {
+        // Display month only
+        std::cout << std::setw(5) << candle.date.substr(5, 2); 
     }
     std::cout << std::endl;
+}
+
+void Candlestick::drawCandlestick(float open, float close, float high, float low, double currentRange, double previousRange) {
+    std::string character = "       ";
+    std::string wickCharacter = "   │   ";
+    std::string bodyCharacter = "   ┃   ";
+    std::string openCloseCharacter = "   ─   ";
+
+    if (high >= currentRange && high < previousRange) {
+        character = wickCharacter;
+    } else if (low >= currentRange && low < previousRange) {
+        character = openCloseCharacter;
+    } else if (open >= currentRange && open < previousRange) {
+        character = openCloseCharacter;
+    } else if (close >= currentRange && close < previousRange) {
+        character = wickCharacter;
+    } else if ((currentRange > open && currentRange < close) || (currentRange > close && currentRange < open)) {
+        character = bodyCharacter;
+    } else if ((currentRange > low && currentRange < open) || (currentRange > low && currentRange < close)) {
+        character = wickCharacter;
+    } else if ((currentRange > open && currentRange < high) || (currentRange > close && currentRange < high)) {
+        character = wickCharacter;
+    }
+
+    if (close < open) std::cout << RED_TEXT << std::setw(3) << character << RESET_TEXT;
+    else std::cout << GREEN_TEXT << std::setw(3) << character << RESET_TEXT;
+}
+
+double Candlestick::getHighestHigh(const std::vector<Candlestick>& candlesticks) {
+    if (candlesticks.empty()) return 0.0;
+    double highestHigh = candlesticks[0].high;
+    for (const Candlestick& candlestick : candlesticks) {
+        if (candlestick.high > highestHigh) highestHigh = candlestick.high;
+    }
+    return highestHigh;
+}
+
+double Candlestick::getLowestLow(const std::vector<Candlestick>& candlesticks) {
+    if (candlesticks.empty()) return 0.0;
+    double lowestLow = candlesticks[0].low;
+    for (const Candlestick& candlestick : candlesticks) {
+        if (candlestick.low < lowestLow) lowestLow = candlestick.low;
+    }
+    return lowestLow;
 }

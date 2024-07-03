@@ -13,7 +13,7 @@ public:
 private:
     void loadData();
     void processCandlestickData();
-    // void displayCandlestickData();
+    //void displayCandlestickData();
     void displayTextCandlestickData();
 
     std::map<std::string, std::map<std::string, std::vector<float>>> temperatureData;
